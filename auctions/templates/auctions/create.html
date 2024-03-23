@@ -1,0 +1,55 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Create Listing{% endblock title %}
+
+{% block body %}
+    {% if message %}
+        <div class="alert alert-primary" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <h2>Create Listing</h2>
+
+        <form action="{% url "auctions:create" %}" method="post">
+            {% csrf_token %}
+            
+            <div class="form-group mb-3">
+                <label for="listingTitle" class="form-label mb-1">Title</label>
+                <input class="form-control" type="text" id="listingTitle" name="title" autofocus aria-describedby="titleHelp" required {% if form_data %}value="{{ form_data.title }}"{% endif %}>
+                <div id="titleHelp" class="form-text">Write a straight forward title of what you are selling.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="listingDescription" class="form-label mb-1">Description</label>
+                <textarea class="form-control" id="listingDescription" name="description" aria-describedby="descriptionHelp" required>{% if form_data %}{{ form_data.description }}{% endif %}</textarea>
+                <div id="descriptionHelp" class="form-text">Write a compeling description of what you are selling. Include as much info as possible.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="listingBid" class="form-label mb-1">Starting Bid [EUR]</label>
+                <input class="form-control" type="number" id="listingBid" name="starting_bid" aria-describedby="bidHelp" required {% if form_data %}value="{{ form_data.starting_bid }}"{% endif %}>
+                <div id="bidHelp" class="form-text">Enter the starting bid from which the auctions should start.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="listingImage" class="form-label mb-1">Image</label>
+                <input class="form-control" type="url" id="listingImage" name="image" aria-describedby="imageHelp" {% if form_data %}value="{{ form_data.image }}"{% endif %}>
+                <div id="imageHelp" class="form-text">Enter the image URL of your listing.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="listingCategory" class="form-label mb-1">Category</label>
+                <select class="form-control" id="listingCategory" name="category" aria-describedby="categoryHelp">
+                    <option></option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if form_data.category|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }} ({{ category.description }})</option>
+                    {% endfor %}
+                </select>
+                <div id="categoryHelp" class="form-text">Select the appropriate category for your listing.</div>
+            </div>
+
+            <input class="btn btn-primary" type="submit" value="Create Listing">
+        </form>
+
+{% endblock body %}

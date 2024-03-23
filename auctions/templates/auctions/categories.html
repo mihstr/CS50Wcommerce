@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Search by Category{% endblock title %}
+
+{% block body %}
+    <h2>Categories</h2>
+
+    {% if message %}
+        <div class="alert alert-primary" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-primary" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if categories %}
+        {% for category in categories %}
+                <ul>
+                    <li><a class="link-secondary" href="{% url "auctions:category_item" category.pk %}">{{ category.name }}</a></li>
+                </ul>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4>No categories</h4>
+        </div>
+    {% endif %}
+
+{% endblock body %}

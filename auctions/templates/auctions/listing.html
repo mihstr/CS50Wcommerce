@@ -1,0 +1,125 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Create Listing{% endblock title %}
+
+{% block body %}
+    {% if message %}
+        <div class="alert alert-primary" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-primary" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+    {% endif %}
+
+    <div class="container text-left">
+        <div class="row">
+            <div class="col-4">
+                <img src="{{ listing.image }}" class="w-100 p-5"></img>
+            </div>
+            <div class="col-8 p-5 d-flex flex-column justify-content-around">
+                <div>
+                    <ul>
+                        <li><strong>Title: </strong>{{ listing.title }}</li>
+                        <li><strong>Description: </strong>{{ listing.description }}</li>
+                        {% if is_starting %}
+                            <li><strong>Starting Bid: </strong>{{ latest_bid.bid }} EUR</li>
+                            <li><strong>Latest Bid: </strong><em>No bids placed yet</em></li>
+                        {% else %}
+                            <li><strong>Starting Bid: </strong>{{ starting_bid.bid }} EUR</li>
+                            <li><strong>Latest Bid: </strong>{{ latest_bid.bid }} EUR</li>
+                        {% endif %}
+
+                        {% if listing.category %}
+                            <li><strong>Category: </strong>{{ listing.category.name }}</li>
+                        {% else %}
+                            <li><strong>Category: </strong>Uncategorised</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% if user.is_authenticated %}
+                    {% if listing.status.name == "Active" %}
+                        <div>
+                            <form action="{% url "auctions:create_bid" listing.pk%}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group mb-3">
+                                    <label for="listingBid" class="form-label mb-1">Bid [EUR]: </label>
+                                    <input class="form-control" type="number" id="listingBid" name="create_bid" aria-describedby="bidHelp" required {% if form_data %}value="{{ form_data.create_bid }}"{% endif %}>
+                                    <div id="bidHelp" class="form-text">Enter your bid. Bid must be equal or grater than the starting bid and greater than any other placed bids.</div>
+                                </div>
+                                <input class="btn btn-primary" type="submit" value="Submit Your Bid">
+                            </form>
+                        </div>
+                    {% endif %}
+
+                    {% if listing.status.name == "Active" %}
+                        {% if listing.created_by == request.user %}
+                            <div>
+                                <a class="btn btn-danger mt-1" href="{% url "auctions:close_auction" listing.pk %}" role="button">Close Auction</a>
+                            </div>
+                        {% endif %}
+                    {% elif listing.status.name == "Sold" %}
+                            {% if request.user == latest_bid.bid_by %}
+                                <div class="alert alert-primary" role="alert">
+                                    You have won this auction!
+                                </div>
+                            {% else %}
+                                <div class="alert alert-primary" role="alert">
+                                    This item is sold!
+                                </div>
+                            {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            {% if user.is_authenticated %}
+                {% if watchlisted %}
+                    <a class="btn btn-primary" href="{% url "auctions:remove_from_watchlist" listing.pk %}" role="button">Remove from Watchlist</a>
+                {% else %}
+                    <a class="btn btn-primary" href="{% url "auctions:add_to_watchlist" listing.pk %}" role="button">Add to Watchlist</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="container">
+            <h2 class="mt-5">Comments</h2>
+            <form action="{% url "auctions:post_comment" listing.pk%}" method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="comment" class="form-label mb-1">Your Comment:</label>
+                    <textarea class="form-control" type="text" id="comment" name="post_comment" aria-describedby="commentHelp" required {% if form_data %}value="{{ form_data.create_bid }}"{% endif %}></textarea>
+                    <div id="commentHelp" class="form-text">Enter your comment.</div>
+                </div>
+                <input class="btn btn-primary" type="submit" value="Post Your Comment">
+            </form>
+        </div>
+        <div class="container text-left mt-5">
+            {% for comment in comments %}
+                <div class="row border rounded mt-2">
+                    <div class="col-3">
+                        <div class="d-flex flex-column content-justify-around">
+                            <p><strong>Posted by: </strong>{{ comment.comment_by }}</p>
+                            <p class="fs-6">{{ comment.date }}</p>
+                        </div>
+                    </div>
+                    <div class="col-9">
+                        <p class="mt-2">{{ comment.comment }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <a href="{% url 'auctions:login' %}">Log In</a> or <a class="link" href="{% url "auctions:register" %}">Register</a> to view comments.
+        </div>
+    {% endif %}
+
+{% endblock body %}

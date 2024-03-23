@@ -1,0 +1,69 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Search by {{ category.name }}{% endblock title %}
+
+{% block body %}
+    <h2>{{ category.name }}</h2>
+
+    {% if message %}
+        <div class="alert alert-primary" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-primary" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    {% if listings %}
+        {% for listing in listings %}
+            <div class="container text-left border rounded mb-5">
+                <a href="{% url 'auctions:listing' listing.pk %}" class="link-body-emphasis link-underline link-underline-opacity-0">
+                <div class="row">
+                    <div class="col p-5">
+                        {% if listing.image %}
+                            <img src="{{ listing.image }}" class="img-fluid">
+                        {% else %}
+                            <img src="https://cdn4.iconfinder.com/data/icons/picture-sharing-sites/32/No_Image-1024.png" class="img-fluid">
+                        {% endif %}
+                    </div>
+                    <div class="col-8 m-auto">
+                        <div class="d-flex justify-content-start">
+                            {% if listing.category %}
+                                <p><strong>{{ listing.category.name }}</strong></p>
+                            {% else %}
+                                <p><strong>Uncategorised</strong></p> 
+                            {% endif %}
+                                <p><strong>{{ "&nbsp;" }} | {{ listing.status.name }}</strong></p> 
+                        </div>
+                        <div>
+                            <p><strong>Created by: </strong>{{ listing.created_by }}</p> 
+                            
+                        </div>
+                        <div>
+                            <h3>{{ listing.title }}</h3>
+                            <p>{{ listing.description }}</p>
+                        </div>
+                        <div class="d-flex flex-row-reverse p-5">
+                            {% if latest_bids|get_item:listing.pk %}
+                                <h4>Latest Bid: {{ latest_bids|get_item:listing.pk }} EUR</h4>
+                            {% else %}
+                                <h4><em>No bids yet</em></h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            There are no listings for {{ category.name }} category.
+        </div>
+    {% endif %}
+
+{% endblock body %}
